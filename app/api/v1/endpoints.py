@@ -37,31 +37,36 @@ async def extract_menu(request: MenuRequest):
         # Check MongoDB (30-day TTL) - only if name provided
         mongo = MongoService()
         if request.restaurant_name:
-            stored = await mongo.get_menu(request.restaurant_name, request.location)
-            # Only use stored data if menu has items
-            has_items = False
-            if stored and stored.get("menu"):
-                menu = stored.get("menu", {})
-                for veg_type in ["vegetarian", "non_vegetarian"]:
-                    if veg_type in menu:
-                        for items in menu[veg_type].values():
-                            if isinstance(items, list) and len(items) > 0:
-                                has_items = True
-                                break
-            if stored and has_items:
-                # Refresh Redis cache
-                if cache_key:
-                    await cache.set_menu(cache_key, {
+            try:
+                stored = await mongo.get_menu(request.restaurant_name, request.location)
+                # Only use stored data if menu has items
+                has_items = False
+                if stored and stored.get("menu"):
+                    menu = stored.get("menu", {})
+                    for veg_type in ["vegetarian", "non_vegetarian"]:
+                        if veg_type in menu:
+                            for items in menu[veg_type].values():
+                                if isinstance(items, list) and len(items) > 0:
+                                    has_items = True
+                                    break
+                if stored and has_items:
+                    # Refresh Redis cache (fail silently if redis down)
+                    if cache_key and cache:
+                        try:
+                            await cache.set_menu(cache_key, {
+                                "restaurant": stored["restaurant_info"],
+                                "menu": stored["menu"],
+                                "meta": stored["meta"]
+                            })
+                        except: pass
+                    return {
                         "restaurant": stored["restaurant_info"],
                         "menu": stored["menu"],
-                        "meta": stored["meta"]
-                    })
-                return {
-                    "restaurant": stored["restaurant_info"],
-                    "menu": stored["menu"],
-                    "meta": stored["meta"],
-                    "source": "mongodb"
-                }
+                        "meta": stored["meta"],
+                        "source": "mongodb"
+                    }
+            except Exception as e:
+                print(f"[Warning] MongoDB read failed: {e}")
         
         import time
         timings = {}
@@ -128,13 +133,16 @@ async def extract_menu(request: MenuRequest):
         final_name = restaurant.get("name") or request.restaurant_name or "Unknown"
         final_location = request.location or restaurant.get("address") or ""
         
-        await mongo.save_menu(
-            restaurant_name=final_name,
-            location=final_location,
-            restaurant_info=restaurant,
-            menu=menu,
-            meta=meta
-        )
+        try:
+            await mongo.save_menu(
+                restaurant_name=final_name,
+                location=final_location,
+                restaurant_info=restaurant,
+                menu=menu,
+                meta=meta
+            )
+        except Exception as e:
+            print(f"[Warning] MongoDB save failed: {e}")
         
         # Cache in Redis (1-hour TTL)
         response_data = {
@@ -150,7 +158,10 @@ async def extract_menu(request: MenuRequest):
         if not cache:
             cache = CacheService()
             
-        await cache.set_menu(cache_key, response_data)
+        try:
+            await cache.set_menu(cache_key, response_data)
+        except Exception as e:
+            print(f"[Warning] Redis cache failed: {e}")
         
         print(f"[API] Saved to MongoDB and cached in Redis")
         
