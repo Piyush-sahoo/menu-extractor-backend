@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # MongoDB for persistent storage (30-day TTL)
+  mongo:
+    image: mongo:7
+    container_name: menu_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: menu_extractor
+    restart: unless-stopped
+
+  # Redis for caching (1-hour TTL)
+  redis:
+    image: redis:7-alpine
+    container_name: menu_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  # Menu Extractor API
+  api:
+    build: .
+    container_name: menu_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app  # Hot reload during development
+      - /app/venv  # Avoid overwriting container venv
+      - /app/__pycache__
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - REDIS_URL=redis://redis:6379/0
+      # - GOOGLE_APPLICATION_CREDENTIALS=/app/posibldashboard-dfba748048ec.json # Using env var now
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+      - redis
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  redis_data:

@@ -1,0 +1,22 @@
+fastapi
+uvicorn[standard]
+gunicorn
+redis
+python-dotenv
+pydantic-settings
+httpx
+
+# Google APIs
+google-generativeai
+google-cloud-vision
+google-search-results
+
+# MongoDB
+motor
+
+# Optional (not needed for SerpAPI approach)
+# playwright
+# beautifulsoup4
+# pytesseract
+# Pillow
+# rapidfuzz
