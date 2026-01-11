@@ -34,10 +34,7 @@ services:
       - .:/app  # Hot reload during development
       - /app/venv  # Avoid overwriting container venv
       - /app/__pycache__
-    environment:
-      - MONGO_URL=mongodb://mongo:27017
-      - REDIS_URL=redis://redis:6379/0
-      # - GOOGLE_APPLICATION_CREDENTIALS=/app/posibldashboard-dfba748048ec.json # Using env var now
+
     env_file:
       - .env
     depends_on:

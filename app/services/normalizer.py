@@ -1,15 +1,13 @@
-"""
-Normalizer Service - Converts OCR text to structured menu JSON.
-PARALLEL CHUNKING: Splits large text and calls Gemini in parallel for speed.
-"""
-import json
-import asyncio
-from typing import Dict, Any, List
-import google.generativeai as genai
 import os
 # Suppress deprecation warning
 os.environ["GRPC_VERBOSITY"] = "ERROR"
 os.environ["GLOG_minloglevel"] = "2"
+
+import json
+import logging
+import asyncio
+from typing import Dict, Any, List
+import google.generativeai as genai
 
 from app.core.config import settings
 

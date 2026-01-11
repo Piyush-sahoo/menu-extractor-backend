@@ -13,6 +13,7 @@ google-search-results
 
 # MongoDB
 motor
+dnspython
 
 # Optional (not needed for SerpAPI approach)
 # playwright
