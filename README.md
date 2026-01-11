@@ -303,14 +303,6 @@ curl -X POST "http://localhost:8000/api/v1/extract-menu" \
 | v1 (Sequential) | 120s | 36s | 81s | 1x |
 | v2 (Parallel OCR) | 90s | 18s | 70s | 1.3x |
 | v3 (Parallel Gemini) | 60s | 18s | 35s | 2x |
----
+| **v4 (Full Parallel)** | **32s** | **16s** | **8s** | **4x** 🚀 |
 
-## 🔮 Future Parallelization Ideas
-
-| Idea | Potential Impact | Complexity |
-|------|-----------------|------------|
-| **Overlap OCR + Gemini** | Start Gemini on first chunk while OCR continues | ~15% faster | Medium |
-| **Batch Vision API** | Send multiple images in single request | ~20% faster | Low |
-| **Stream Gemini responses** | Use streaming to start processing earlier | ~10% faster | Medium |
-| **Prefetch popular restaurants** | Background job to cache top restaurants | Instant for cached | High |
-| **Parallel cache + DB check** | Check Redis and MongoDB simultaneously | ~1s faster | Low |
+**From 2 minutes to 30 seconds — 4x faster!** 🔥
