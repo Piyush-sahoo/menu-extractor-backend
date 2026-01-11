@@ -1,0 +1,135 @@
+{
+    "info": {
+        "_postman_id": "aa948293-2729-4d92-9950-70585641775f",
+        "name": "Menu Extractor API",
+        "description": "API collection for the Menu Extractor Service. Default URL points to the live Render deployment.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Extract Menu (Google Maps URL)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"google_maps_url\": \"https://www.google.com/maps/search/The+Rameshwaram+Cafe+Indiranagar\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/extract-menu",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "extract-menu"
+                    ]
+                },
+                "description": "Extracts menu items from a given Google Maps URL. Saves result to MongoDB and Redis."
+            },
+            "response": []
+        },
+        {
+            "name": "List All Menus",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/menus?limit=10&skip=0",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "menus"
+                    ],
+                    "query": [
+                        {
+                            "key": "limit",
+                            "value": "10"
+                        },
+                        {
+                            "key": "skip",
+                            "value": "0"
+                        }
+                    ]
+                },
+                "description": "List all stored menus with pagination."
+            },
+            "response": []
+        },
+        {
+            "name": "Get Menu by Name",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/menus/The Rameshwaram Cafe - Indiranagar",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "menus",
+                        "The Rameshwaram Cafe - Indiranagar"
+                    ]
+                },
+                "description": "Retrieve a specific menu by exact restaurant name."
+            },
+            "response": []
+        },
+        {
+            "name": "Delete Menu",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/menus/The Rameshwaram Cafe - Indiranagar",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "menus",
+                        "The Rameshwaram Cafe - Indiranagar"
+                    ]
+                },
+                "description": "Delete a stored menu."
+            },
+            "response": []
+        },
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/health",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "https://menu-extractor-backend.onrender.com",
+            "type": "string"
+        }
+    ]
+}

@@ -8,3 +8,4 @@ temp/
 *.json
 !menu_schema.md
 posibldashboard-dfba748048ec.json
+!menu_extractor_postman_collection.json
