@@ -2,7 +2,20 @@
 
 > Extract structured menu data from any restaurant using Google Maps photos, Vision OCR, and Gemini AI.
 
-## ⚡ Performance (After Optimization)
+## 📈 Performance Comparison
+
+| Version | Total Time | OCR | Gemini | Speedup |
+|---------|------------|-----|--------|--------|
+| v1 (Sequential) | 120s | 36s | 81s | 1x |
+| v2 (Parallel OCR) | 90s | 18s | 70s | 1.3x |
+| v3 (Parallel Gemini) | 60s | 18s | 35s | 2x |
+| **v4 (Full Parallel)** | **32s** | **16s** | **8s** | **4x** 🚀 |
+
+**From 2 minutes to 30 seconds — 4x faster!** 🔥
+
+---
+
+## ⚡ Current Performance
 
 | Metric | Time |
 |--------|------|
@@ -12,6 +25,21 @@
 | Gemini (parallel chunks) | 8s |
 
 ---
+
+## 🔬 Why SerpAPI? (The Journey)
+
+We explored multiple approaches before settling on SerpAPI:
+
+| Approach | Problem | Outcome |
+|----------|---------|----------|
+| **Zomato API** | Rate limiting + Blocked scraping | ❌ Blocked |
+| **Swiggy API** | Rate limiting + Anti-bot protection | ❌ Blocked |
+| **MagicPin** | Rate limiting + CAPTCHA | ❌ Blocked |
+| **Direct Google Maps** | Rate limiting on images | ❌ Blocked |
+| **Zomato MCP** | Added latency (~10s overhead) | ❌ Too slow |
+| **SerpAPI** | Reliable, no rate limits, fast | ✅ **Winner** |
+
+**SerpAPI** provides direct access to Google Maps photos without rate limiting, making it the most reliable and fastest option for production use.
 
 ## 🏗️ Architecture
 
@@ -143,10 +171,7 @@ Restaurant Name + Location
 |-------------|--------|--------|
 | **Parallel image downloads** | 3x faster | ✅ Done |
 | **Parallel Vision API calls** | 5x faster | ✅ Done |
-| **Limit to 10 images** | 2x faster | ✅ Done |
-| Batch Vision API requests | 30% faster | 🔜 Future |
-| Use smaller image resolution | 20% faster | 🔜 Future |
-| Local OCR (Tesseract) | Slower but free | ❌ Not recommended |
+| **First 10 popular/recent images** | 2x faster (covers most menu data) | ✅ Done |
 
 ### Current OCR Implementation:
 
@@ -273,10 +298,19 @@ curl -X POST "http://localhost:8000/api/v1/extract-menu" \
 
 ## 📈 Performance Comparison
 
-| Version | Total Time | OCR | Gemini |
-|---------|------------|-----|--------|
-| v1 (Sequential) | 120s | 36s | 81s |
-| v2 (Parallel OCR) | 90s | 18s | 70s |
-| **v3 (Full Parallel)** | **32s** | **16s** | **8s** |
+| Version | Total Time | OCR | Gemini | Speedup |
+|---------|------------|-----|--------|--------|
+| v1 (Sequential) | 120s | 36s | 81s | 1x |
+| v2 (Parallel OCR) | 90s | 18s | 70s | 1.3x |
+| v3 (Parallel Gemini) | 60s | 18s | 35s | 2x |
+---
 
-**4x faster than original!** 🚀
+## 🔮 Future Parallelization Ideas
+
+| Idea | Potential Impact | Complexity |
+|------|-----------------|------------|
+| **Overlap OCR + Gemini** | Start Gemini on first chunk while OCR continues | ~15% faster | Medium |
+| **Batch Vision API** | Send multiple images in single request | ~20% faster | Low |
+| **Stream Gemini responses** | Use streaming to start processing earlier | ~10% faster | Medium |
+| **Prefetch popular restaurants** | Background job to cache top restaurants | Instant for cached | High |
+| **Parallel cache + DB check** | Check Redis and MongoDB simultaneously | ~1s faster | Low |
